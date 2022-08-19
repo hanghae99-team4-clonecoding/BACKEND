@@ -11,12 +11,12 @@ module.exports = class User extends Sequelize.Model {
           autoIncrement: true,
         },
         email: {
-          type: Sequelize.STRING(20),
+          type: Sequelize.STRING,
           allowNull: false,
           unique: true,
         },
         password: {
-            type: Sequelize.STRING(100),
+            type: Sequelize.STRING,
             allowNull: false,
             unique: false,
         },
