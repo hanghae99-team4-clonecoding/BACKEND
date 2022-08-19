@@ -1,5 +1,26 @@
 {
   "dependencies": {
-    "express": "^4.18.1"
-  }
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.21.4",
+    "sequelize-cli": "^6.4.1"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hanghae99-team4-clonecoding/BACKEND.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hanghae99-team4-clonecoding/BACKEND/issues"
+  },
+  "homepage": "https://github.com/hanghae99-team4-clonecoding/BACKEND#readme",
+  "description": ""
 }
