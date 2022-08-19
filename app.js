@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const { sequelize } = require("./models");
+const router = require("./routes")
 
 //db 생성 부분
 sequelize
@@ -13,7 +14,7 @@ sequelize
     console.log(err);
   });
 
-
+app.use("/api", router);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
