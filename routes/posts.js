@@ -44,80 +44,42 @@ router.post("/", async (req, res) => {
 //일단 해당 postId를 가진 게시글이 존재하는 지 보고 있으면 삭제하면 되는거 아닌가?
 //근데 로그인한 유저id가 해당 postid랑 같아야 하니 userId도 필요하다
 router.delete("/:postId", async (req, res) => {
-  try {
-    const { postId } = req.params;
-    console.log(postId);
+  // try {
+  const { postId } = req.params;
+  console.log(postId);
 
-    const post = await Post.findByPk(postId);
+  const email = res.locals.user;
 
-    const email = res.locals.user;
-    console.log(email);
+  const post = await Post.findOne({ where: { postId } });
+  console.log(post);
 
-    if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "해당 게시글이 존재하지 않습니다" });
-    }
+  if (!post) {
+    return res
+      .status(404)
+      .json({ success: false, message: "해당 게시글이 존재하지 않습니다" });
+  }
 
-    const count = await Post.destory({ where: { postId, email } }); // postId와 userId(email)가 일치하면 삭제한다
+  console.log(email);
 
-    if (count < 1) {
-      return res.status({
-        error: "게시글이 정상적으로 삭제되지 않았습니다.",
-      });
-    }
+  await Post.destory({ postId }); // postId와 userId(email)가 일치하면 삭제한다
 
-    // return res.status(200).json({ message: "게시글을 삭제했습니다." });
-    //게시글 삭제후 전제조회
-
-    const postAll = await Post.findAll();
-    return res.status(200).json({ data: postAll });
-  } catch (error) {
-    return res.status(401).json({
-      error: "게시글 삭제에 실패했습니다.",
+  if (count < 1) {
+    return res.status({
+      error: "게시글이 정상적으로 삭제되지 않았습니다.",
     });
   }
-});
 
-//게시글 수정
-//삭제와 마찬가지로 userid와 postId가 같은지 확인하고
-//다른 점은 req.body에 있는 거 받아와서 수정해 주는 거 정도일듯
-// 근데 req.body가 joi를 거쳐 validate검사를 한다 => why? 게시글 수정하는 데 게시글이 잘못되면 안되니까 인듯
-// 게시글 작성에도 해야 될듯하다 req.body에 validate..
-router.put("/:postId", async (req, res) => {
-  try {
-    const resultSchema = postSchema.validate(req.body);
-    if (resultSchema.error) {
-      return res.status(412).json({
-        errorMessagfe: "데이터 형식이 올바르지 않습니다.",
-      });
-    }
+  // return res.status(200).json({ message: "게시글을 삭제했습니다." });
+  //게시글 삭제후 전제조회
 
-    const { postId } = req.params;
-    const { userId } = req.locals.user;
-    const { title, content } = resultSchema.value;
-
-    const post = await Post.findOne({ where: { postId: postId } });
-
-    if (!post) {
-      return res.status(400).json({ error: "게시글이 존재하지 않습니다." });
-    }
-
-    const count = await Post.update(
-      { title, content },
-      { where: { postId, userId } }
-    );
-
-    if (count < 1) {
-      return res
-        .status(400)
-        .json({ errorMessage: "게시글이 정상적으로 수정되지 않았습니다." });
-    }
-
-    return res.status(200).json({ message: "게시글을 수정했습니다." });
-  } catch (error) {
-    return res.status(400).json({ error: "게시글 수정에 실패했습니다." });
-  }
+  const postAll = await Post.findAll();
+  return res.status(200).json({ data: postAll });
+  // } catch (error) {
+  //   console.log(error);
+  //   return res.status(401).json({
+  //     error: "게시글 삭제에 실패했습니다.",
+  //   });
+  // }
 });
 
 //프로필
@@ -128,12 +90,12 @@ router.put("/:postId", async (req, res) => {
 //아니면 걍 findOne으로 하나씩 찾고 그걸 map같은거 돌려도 될듯
 router.get("/profile", async (req, res) => {
   try {
-    const { userId } = req.locals.user;
-    const post = await Post.findOne({ where: { userId: userId } });
+    const { email } = req.locals;
+    const post = await Post.findOne({ where: { email: email } });
 
     const data = await Post.findAll({
       where: {
-        [Op.and]: [{ userId }], //게시글 중에 userId인걸 다 찾는다
+        [Op.and]: [{ email }], //게시글 중에 email 인걸 다 찾는다
       },
     });
 
@@ -148,5 +110,43 @@ router.get("/profile", async (req, res) => {
     });
   }
 });
+
+//게시글 수정
+//삭제와 마찬가지로 userid와 postId가 같은지 확인하고
+//다른 점은 req.body에 있는 거 받아와서 수정해 주는 거 정도일듯
+// 근데 req.body가 joi를 거쳐 validate검사를 한다 => why? 게시글 수정하는 데 게시글이 잘못되면 안되니까 인듯
+// 게시글 작성에도 해야 될듯하다 req.body에 validate..
+
+// router.put("/:postId", async (req, res) => {
+//   try {
+//     const resultSchema = postSchema.validate(req.body);
+//     if (resultSchema.error) {
+//       return res.status(412).json({
+//         errorMessagfe: "데이터 형식이 올바르지 않습니다.",
+//       });
+//     }
+
+//     const { postId } = req.params;
+//     const { email, content } = resultSchema.value;
+
+//     const post = await Post.findOne({ where: { postId: postId } });
+
+//     if (!post) {
+//       return res.status(400).json({ error: "게시글이 존재하지 않습니다." });
+//     }
+
+//     const count = await Post.update({ email, content }, { where: { postId } });
+
+//     if (count < 1) {
+//       return res
+//         .status(400)
+//         .json({ errorMessage: "게시글이 정상적으로 수정되지 않았습니다." });
+//     }
+
+//     return res.status(200).json({ message: "게시글을 수정했습니다." });
+//   } catch (error) {
+//     return res.status(400).json({ error: "게시글 수정에 실패했습니다." });
+//   }
+// });
 
 module.exports = router;
