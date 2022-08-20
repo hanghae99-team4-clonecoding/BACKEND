@@ -145,3 +145,5 @@ router.get("/profile", async (req, res) => {
 });
 
 module.exports = router;
+
+//검색기능을 넣는다면?
