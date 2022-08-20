@@ -13,7 +13,7 @@ const postSchema = Joi.object({
 // const authMiddleware = require("../middlewares/auth-middleware");
 // const jwt = require("jsonwebtoken");
 
-//게시글 작성 삭제 수정 조회(프로필), 나중에 미들웨어 추가해야함 +게시글 수정 작성 할때 숙련주차처럼 bodt검사 자세히 해야되는지
+//게시글 작성 삭제 수정 조회(프로필), 나중에 미들웨어 추가해야함 +게시글 수정 작성 할때 숙련주차처럼 body검사 자세히 해야되는지
 
 //일단 게시글 작성은 형식이 req.body가 validate, verify등을 통과했는 지 검사를 한다
 //하는 이유 일단 게시글을 작성하는 거니  무조건 존재해야 된다. 실제로 존재하냐 정도의 테스트를 한다고 보면 될듯?
@@ -22,19 +22,19 @@ router.post("/post", async (req, res) => {
     const resultSchema = postSchema.validate(req.body);
     if (resultSchema.error) {
       return res.status(412).json({
-        errorMessage: "데이터 형식이 올바릅지 않습니다.",
+        error: "데이터 형식이 올바릅지 않습니다.",
       });
     }
-    const { title, content, image, email } = req.body;
+    const { content, image, email } = req.body;
     const { userId } = res.locals.user;
 
-    await Post.create({ title, content, email, image, userId });
+    await Post.create({ content, email, image, userId });
 
     return res
       .status(201)
-      .json({ success: true, message: "게시글을 생성했습니다." });
+      .json({ success: true, message: "포스팅에 성공했습니다." });
   } catch (error) {
-    return res.status(400).json({ message: "게시글 작성에 실패했습니다." });
+    return res.status(400).json({ error: "게시글 작성에 실패했습니다." });
   }
 });
 
@@ -58,14 +58,14 @@ router.delete("/:postId", async (req, res) => {
 
     if (count < 1) {
       return res.status({
-        errorMessage: "게시글이 정상적으로 삭제되지 않았습니다.",
+        error: "게시글이 정상적으로 삭제되지 않았습니다.",
       });
     }
 
     return res.status(200).json({ message: "게시글을 삭제했습니다." });
   } catch (error) {
     return res.status(401).json({
-      errorMessage: "게시글 삭제에 실패했습니다.",
+      error: "게시글 삭제에 실패했습니다.",
     });
   }
 });
@@ -86,18 +86,16 @@ router.put("/:postId", async (req, res) => {
 
     const { postId } = req.params;
     const { userId } = req.locals.user;
-    const { title, content } = resultSchema.value;
+    const { content } = resultSchema.value;
 
     const post = await Post.findOne({ where: { postId: postId } });
 
     if (!post) {
-      return res
-        .status(400)
-        .json({ errorMessage: "게시글이 존재하지 않습니다." });
+      return res.status(400).json({ error: "게시글이 존재하지 않습니다." });
     }
 
     const count = await Post.update(
-      { title, content },
+      { content },
       { where: { postId, userId } }
     );
 
@@ -109,9 +107,7 @@ router.put("/:postId", async (req, res) => {
 
     return res.status(200).json({ message: "게시글을 수정했습니다." });
   } catch (error) {
-    return res
-      .status(400)
-      .json({ errorMessage: "게시글 수정에 실패했습니다." });
+    return res.status(400).json({ error: "게시글 수정에 실패했습니다." });
   }
 });
 
@@ -139,7 +135,8 @@ router.get("/profile", async (req, res) => {
     });
   } catch (error) {
     return res.status(400).json({
-      errorMessage: "프로필 조회에 실패하였습니다.",
+      error: "프로필 조회에 실패하였습니다.",
     });
   }
 });
+
