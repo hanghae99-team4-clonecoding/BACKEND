@@ -1,30 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const { Post } = require("../models");
+
 const Joi = require("joi");
 const { Op } = require("sequelize");
 
 const postSchema = Joi.object({
-  title: Joi.string().required(),
+  email: Joi.string().required(),
   content: Joi.string().required(),
+  image: Joi.string().required(),
 });
 
 //게시글 작성 삭제 수정 조회(프로필), 나중에 미들웨어 추가해야함 +게시글 수정 작성 할때 숙련주차처럼 body검사 자세히 해야되는지
 
 //일단 게시글 작성은 형식이 req.body가 validate, verify등을 통과했는 지 검사를 한다
 //하는 이유 일단 게시글을 작성하는 거니  무조건 존재해야 된다. 실제로 존재하냐 정도의 테스트를 한다고 보면 될듯?
-router.post("/post", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const resultSchema = postSchema.validate(req.body);
+    console.log(content, image, email);
     if (resultSchema.error) {
-      return res.status(412).json({
-        error: "데이터 형식이 올바릅지 않습니다.",
+      return res.status(400).json({
+        error: "데이터 형식이 올바르지 않습니다.",
       });
     }
-    const { content, image, email } = req.body;
-    const { userId } = res.locals.user;
 
-    await Post.create({ content, email, image, userId });
+    const { content, image, email } = resultSchema.value;
+
+    await Post.create({ content, email, image });
 
     return res
       .status(201)
@@ -40,7 +43,6 @@ router.post("/post", async (req, res) => {
 router.delete("/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
-    const { userId } = req.locals.user;
 
     const post = await Post.findByPk(postId);
 
@@ -50,7 +52,8 @@ router.delete("/:postId", async (req, res) => {
         .json({ success: false, message: "해당 게시글이 존재하지 않습니다" });
     }
 
-    const count = await Post.destory({ where: { postId, userId } }); // postId와 userId가 일치하면 삭제한다
+    const email = res.locals.user.email;
+    const count = await Post.destory({ where: { postId, email } }); // postId와 userId(email)가 일치하면 삭제한다
 
     if (count < 1) {
       return res.status({
@@ -58,7 +61,11 @@ router.delete("/:postId", async (req, res) => {
       });
     }
 
-    return res.status(200).json({ message: "게시글을 삭제했습니다." });
+    // return res.status(200).json({ message: "게시글을 삭제했습니다." });
+    //게시글 삭제후 전제조회
+
+    const postAll = await Post.findAll();
+    return res.status(200).json({ data: postAll });
   } catch (error) {
     return res.status(401).json({
       error: "게시글 삭제에 실패했습니다.",

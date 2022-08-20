@@ -10,6 +10,6 @@ const signupRouter = require("./signup");
 //router.use("/", userRouter);
 router.use("/login", loginRouter);
 router.use("/signup", signupRouter);
-router.use("/post", auth, postRouter);
+router.use("/post", postRouter);
 
 module.exports = router;
