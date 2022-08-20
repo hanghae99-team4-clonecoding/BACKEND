@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../models");
+require("dotenv").config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
@@ -15,7 +17,7 @@ module.exports = (req, res, next) => {
     return;
   }
   try {
-    const decoded = jwt.verify(authToken, "clone4-secret-key");
+    const decoded = jwt.verify(authToken, SECRET_KEY);
 
     User.findOne({ where: { userId: decoded.userId } }).then((user) => {
       res.locals.user = user;
