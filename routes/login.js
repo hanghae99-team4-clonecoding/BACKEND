@@ -10,15 +10,11 @@ router.post("/", async (req, res) => {
 
     const user = await User.findOne({ where: { email } });
 
-    if (!user) {
+    if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(400).send({
         error: "이메일 또는 비밀번호가 일치하지 않습니다.",
       });
-    } else if (!bcrypt.compareSync(password, user.password)){
-      return res.status(400).send({
-        error: "이메일 또는 비밀번호가 일치하지 않습니다.",
-      });
-    }
+    } 
 
     const token = jwt.sign({ userId: user.userId }, "clone4-secret-key");
     console.log(token, "토큰확인");
