@@ -10,6 +10,11 @@ module.exports = class Post extends Sequelize.Model {
           primaryKey: true, 
           autoIncrement: true,
         },
+        userId: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          unique: false,
+        },
         content: {
           type: Sequelize.STRING,
           allowNull: false,
