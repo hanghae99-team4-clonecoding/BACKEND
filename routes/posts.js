@@ -10,14 +10,14 @@ const postSchema = Joi.object({
   content: Joi.string().required(),
 });
 
-// const authMiddleware = require("../middlewares/auth-middleware");
-// const jwt = require("jsonwebtoken");
+const authMiddleware = require("../middlewares/auth-middleware");
+const jwt = require("jsonwebtoken");
 
 //게시글 작성 삭제 수정 조회(프로필), 나중에 미들웨어 추가해야함 +게시글 수정 작성 할때 숙련주차처럼 body검사 자세히 해야되는지
 
 //일단 게시글 작성은 형식이 req.body가 validate, verify등을 통과했는 지 검사를 한다
 //하는 이유 일단 게시글을 작성하는 거니  무조건 존재해야 된다. 실제로 존재하냐 정도의 테스트를 한다고 보면 될듯?
-router.post("/post", async (req, res) => {
+router.post("/post", authMiddleware, async (req, res) => {
   try {
     const resultSchema = postSchema.validate(req.body);
     if (resultSchema.error) {
@@ -25,10 +25,10 @@ router.post("/post", async (req, res) => {
         error: "데이터 형식이 올바릅지 않습니다.",
       });
     }
-    const { content, image, email } = req.body;
+    const { title, content, image, email } = req.body;
     const { userId } = res.locals.user;
 
-    await Post.create({ content, email, image, userId });
+    await Post.create({ title, content, email, image, userId });
 
     return res
       .status(201)
@@ -75,7 +75,7 @@ router.delete("/:postId", async (req, res) => {
 //다른 점은 req.body에 있는 거 받아와서 수정해 주는 거 정도일듯
 // 근데 req.body가 joi를 거쳐 validate검사를 한다 => why? 게시글 수정하는 데 게시글이 잘못되면 안되니까 인듯
 // 게시글 작성에도 해야 될듯하다 req.body에 validate..
-router.put("/:postId", async (req, res) => {
+router.put("/:postId", authMiddleware, async (req, res) => {
   try {
     const resultSchema = postSchema.validate(req.body);
     if (resultSchema.error) {
@@ -86,7 +86,7 @@ router.put("/:postId", async (req, res) => {
 
     const { postId } = req.params;
     const { userId } = req.locals.user;
-    const { content } = resultSchema.value;
+    const { title, content } = resultSchema.value;
 
     const post = await Post.findOne({ where: { postId: postId } });
 
@@ -95,7 +95,7 @@ router.put("/:postId", async (req, res) => {
     }
 
     const count = await Post.update(
-      { content },
+      { title, content },
       { where: { postId, userId } }
     );
 
@@ -140,3 +140,11 @@ router.get("/profile", async (req, res) => {
   }
 });
 
+//검색기능을 추가한다면?
+//게시물의 title이 필요하겠지 아마
+//그 title을 받아서 그 타이틀을 가진(100% 동일하진않아도) 게시글들을 조회해준다
+
+router.get("/search", async (req, res) => {
+  const title = req.body.title;
+  const data = await Post.findAll({ title: title });
+});
