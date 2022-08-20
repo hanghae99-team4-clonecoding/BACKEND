@@ -19,6 +19,7 @@ router.post("/", async (req, res) => {
   try {
     const resultSchema = postSchema.validate(req.body);
     console.log(content, image, email);
+
     if (resultSchema.error) {
       return res.status(400).json({
         error: "데이터 형식이 올바르지 않습니다.",
@@ -33,6 +34,8 @@ router.post("/", async (req, res) => {
       .status(201)
       .json({ success: true, message: "포스팅에 성공했습니다." });
   } catch (error) {
+    console.log(error);
+
     return res.status(400).json({ error: "게시글 작성에 실패했습니다." });
   }
 });
