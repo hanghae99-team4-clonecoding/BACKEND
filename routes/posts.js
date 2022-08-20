@@ -11,6 +11,7 @@ const postSchema = Joi.object({
   image: Joi.string().required(),
 });
 
+
 //게시글 작성 삭제 수정 조회(프로필), 나중에 미들웨어 추가해야함 +게시글 수정 작성 할때 숙련주차처럼 body검사 자세히 해야되는지
 
 //일단 게시글 작성은 형식이 req.body가 validate, verify등을 통과했는 지 검사를 한다
@@ -46,12 +47,8 @@ router.post("/", async (req, res) => {
 router.delete("/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
-    console.log(postId);
-
     const post = await Post.findByPk(postId);
-
-    const email = res.locals.user;
-    console.log(email);
+    const user = res.locals.user;
 
     if (!post) {
       return res
@@ -59,7 +56,7 @@ router.delete("/:postId", async (req, res) => {
         .json({ success: false, message: "해당 게시글이 존재하지 않습니다" });
     }
 
-    const count = await Post.destory({ where: { postId, email } }); // postId와 userId(email)가 일치하면 삭제한다
+    const count = await Post.destroy({ where: { postId, email: user.email } }); // postId와 userId(email)가 일치하면 삭제한다
 
     if (count < 1) {
       return res.status({
@@ -128,19 +125,18 @@ router.put("/:postId", async (req, res) => {
 //아니면 걍 findOne으로 하나씩 찾고 그걸 map같은거 돌려도 될듯
 router.get("/profile", async (req, res) => {
   try {
-    const { userId } = req.locals.user;
-    const post = await Post.findOne({ where: { userId: userId } });
-
-    const data = await Post.findAll({
+    const user = res.locals.user;
+    const post = await Post.findAll({
       where: {
-        [Op.and]: [{ userId }], //게시글 중에 userId인걸 다 찾는다
+        [Op.and]: [{ email : user.email }], //게시글 중에 userId인걸 다 찾는다
       },
     });
 
     return res.status(200).json({
-      data: {
-        ...post, //배열이 아닌 상태로 반환
-      },
+      data: post
+      // data : {
+      //   ...post, //배열이 아닌 상태로 반환
+      // },
     });
   } catch (error) {
     return res.status(400).json({
