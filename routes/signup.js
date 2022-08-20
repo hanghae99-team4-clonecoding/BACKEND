@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const { Op } = require("sequelize");
 const express = require("express");
@@ -35,8 +36,10 @@ router.post("/", async (req, res) => {
           .status(400)
           .send({ errorMessage: "입력하신 이메일은 사용중입니다." });
       }
-    
-      await User.create({ email, password });
+      const userData = {email, password}
+      const salt = await bcrypt.genSalt(10);
+      userData.password = await bcrypt.hash(userData.password, salt);
+      await User.create(userData);
       res.status(201).send({message : "회원가입이 완료되었습니다."});
 });
 
