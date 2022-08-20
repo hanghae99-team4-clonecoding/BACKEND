@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../models");
+require("dotenv").config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
@@ -15,20 +17,12 @@ module.exports = (req, res, next) => {
     return;
   }
   try {
-    jwt.verify(authToken, "clone4-secret-key");
+    const decoded = jwt.verify(authToken, SECRET_KEY);
 
-    //인증결과 에러 발생시 에러 메세지 전달
-    async (error, decoded) => {
-      if (error) {
-        res.status(401).send({
-          error: "이용에 문제가 있습니다.",
-        });
-        return;
-      }
-
-      let user = await User.findOne({ where: { userId: decoded.userId } });
+    User.findOne({ where: { userId: decoded.userId } }).then((user) => {
       res.locals.user = user;
-    };
+      next();
+    });
   } catch (error) {
     res.status(401).send({
       error: "로그인 후 사용하세요.",

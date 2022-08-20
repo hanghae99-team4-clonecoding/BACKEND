@@ -1,8 +1,10 @@
 const express = require("express");
 const app = express();
-const port = 3000;
 const { sequelize } = require("./models");
 const router = require("./routes");
+
+require("dotenv").config(); // npm i dotenv
+const port = process.env.PORT; //process.env는 내장 함수로 .env파일의 PORT란 변수를 불러와줌.
 
 //db 생성 부분
 sequelize
