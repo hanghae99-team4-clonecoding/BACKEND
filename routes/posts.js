@@ -137,11 +137,4 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-//검색기능을 추가한다면?
-//게시물의 title이 필요하겠지 아마
-//그 title을 받아서 그 타이틀을 가진(100% 동일하진않아도) 게시글들을 조회해준다
-
-router.get("/search", async (req, res) => {
-  const title = req.body.title;
-  const data = await Post.findAll({ title: title });
-});
+module.exports = router;
