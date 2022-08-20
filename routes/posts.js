@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const { Post } = require("../models");
-const { User } = require("../models");
 const Joi = require("joi");
 const { Op } = require("sequelize");
 
@@ -72,7 +71,7 @@ router.delete("/:postId", async (req, res) => {
 //다른 점은 req.body에 있는 거 받아와서 수정해 주는 거 정도일듯
 // 근데 req.body가 joi를 거쳐 validate검사를 한다 => why? 게시글 수정하는 데 게시글이 잘못되면 안되니까 인듯
 // 게시글 작성에도 해야 될듯하다 req.body에 validate..
-router.put("/:postId", authMiddleware, async (req, res) => {
+router.put("/:postId", async (req, res) => {
   try {
     const resultSchema = postSchema.validate(req.body);
     if (resultSchema.error) {
