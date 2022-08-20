@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const { sequelize } = require("./models");
-const router = require("./routes")
+const router = require("./routes");
 
 //db 생성 부분
 sequelize
@@ -14,7 +14,16 @@ sequelize
     console.log(err);
   });
 
+const requestMiddleWare = (req, res, next) => {
+  console.log("request URL: ", req.originalUrl, " - ", new Date());
+  next();
+};
+
+app.use(express.json());
+app.use(express.urlencoded());
+app.use(requestMiddleWare);
 app.use("/api", router);
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
