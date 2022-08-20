@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const router = express.Router();
+const bcrypt = require("bcryptjs");
 
 router.post("/", async (req, res) => {
   try {
@@ -9,7 +10,7 @@ router.post("/", async (req, res) => {
 
     const user = await User.findOne({ where: { email, password } });
 
-    if (!user || password !== user.password) {
+    if (!user || bcrypt.compareSync(req.body.password, user.password)) {
       res.status(400).send({
         error: "이메일 또는 비밀번호가 일치하지 않습니다.",
       });
