@@ -18,7 +18,6 @@ const postSchema = Joi.object({
 router.post("/", async (req, res) => {
   try {
     const resultSchema = postSchema.validate(req.body);
-    console.log(content, image, email);
 
     if (resultSchema.error) {
       return res.status(400).json({
@@ -27,6 +26,7 @@ router.post("/", async (req, res) => {
     }
 
     const { content, image, email } = resultSchema.value;
+    console.log(content, image, email);
 
     await Post.create({ content, email, image });
 
@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
       .status(201)
       .json({ success: true, message: "포스팅에 성공했습니다." });
   } catch (error) {
-    console.log(error);
+    console.log(content, image, email);
 
     return res.status(400).json({ error: "게시글 작성에 실패했습니다." });
   }
@@ -46,8 +46,12 @@ router.post("/", async (req, res) => {
 router.delete("/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
+    console.log(postId);
 
     const post = await Post.findByPk(postId);
+
+    const email = res.locals.user;
+    console.log(email);
 
     if (!post) {
       return res
@@ -55,7 +59,6 @@ router.delete("/:postId", async (req, res) => {
         .json({ success: false, message: "해당 게시글이 존재하지 않습니다" });
     }
 
-    const email = res.locals.user.email;
     const count = await Post.destory({ where: { postId, email } }); // postId와 userId(email)가 일치하면 삭제한다
 
     if (count < 1) {
