@@ -36,5 +36,6 @@ module.exports = class User extends Sequelize.Model {
 
     static associate(db) {  // 관계 설정
         db.User.hasMany(db.Post, { foreignKey: "email", sourceKey: "email" });
+        db.User.hasMany(db.Like, { foreignKey: "userId", sourceKey: "userId" });
     }
 }
