@@ -15,9 +15,20 @@ const postSchema = Joi.object({
 
 router.get("/", async (req, res) => {
   try {
-    const posts = await Post.findAll({ order: [["createdAt", "desc"]] });
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+    const posts = await Post.findAll({
+      order: [["createdAt", "desc"]],
+      offset: offset,
+      limit: limit,
+    });
     if (!posts.length) {
-      return res.status(400).json({ error: "게시글이 없습니다." });
+      return res.status(200).json({ message: "게시글이 없습니다." });
     }
     const postsData = posts.map((post) => ({
       postId: post.postId,
