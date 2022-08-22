@@ -15,20 +15,22 @@ const postSchema = Joi.object({
 
 router.get("/", async (req, res) => {
   try {
-    const posts = await Post.findAll({order: [["createdAt", "desc"]]});
-    if (!posts.length){
-      return res.status(400).json({error : "게시글이 없습니다."});
+    const posts = await Post.findAll({ order: [["createdAt", "desc"]] });
+    if (!posts.length) {
+      return res.status(400).json({ error: "게시글이 없습니다." });
     }
-    const postsData = posts.map((post)=>({
-      postId : post.postId,
-      email : post.email,
-      content : post.content,
-      image : post.image
+    const postsData = posts.map((post) => ({
+      postId: post.postId,
+      email: post.email,
+      content: post.content,
+      image: post.image,
     }));
 
-    res.status(200).json({data : postsData});
-  }catch (error) {
-    return res.status(400).json({ error: "정상적으로 게시글을 출력할 수 없습니다." });
+    res.status(200).json({ data: postsData });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ error: "정상적으로 게시글을 출력할 수 없습니다." });
   }
 });
 
@@ -85,12 +87,12 @@ router.delete("/:postId", async (req, res) => {
     // return res.status(200).json({ message: "게시글을 삭제했습니다." });
     //게시글 삭제후 전제조회
 
-    const posts = await Post.findAll({order: [["createdAt", "desc"]]});
-    const postsData = posts.map((post)=>({
-      postId : post.postId,
-      email : post.email,
-      content : post.content,
-      image : post.image
+    const posts = await Post.findAll({ order: [["createdAt", "desc"]] });
+    const postsData = posts.map((post) => ({
+      postId: post.postId,
+      email: post.email,
+      content: post.content,
+      image: post.image,
     }));
     return res.status(200).json({ data: postsData });
   } catch (error) {
@@ -116,7 +118,7 @@ router.put("/:postId", async (req, res) => {
 
     const { postId } = req.params;
     const { userId } = req.locals.user;
-    const { title, content } = resultSchema.value;
+    const { content } = resultSchema.value;
 
     const post = await Post.findOne({ where: { postId: postId } });
 
@@ -124,10 +126,7 @@ router.put("/:postId", async (req, res) => {
       return res.status(400).json({ error: "게시글이 존재하지 않습니다." });
     }
 
-    const count = await Post.update(
-      { title, content },
-      { where: { postId, userId } }
-    );
+    const count = await Post.update({ content }, { where: { postId, userId } });
 
     if (count < 1) {
       return res
@@ -154,15 +153,14 @@ router.get("/profile", async (req, res) => {
       where: {
         [Op.and]: [{ email: user.email }], //게시글 중에 userId인걸 다 찾는다
       },
-      order: [["createdAt", "desc"]]
+      order: [["createdAt", "desc"]],
     });
-    const myPostsData = myPosts.map((post)=>({
-      postId : post.postId,
-      email : post.email,
-      content : post.content,
-      image : post.image
+    const myPostsData = myPosts.map((post) => ({
+      postId: post.postId,
+      email: post.email,
+      content: post.content,
+      image: post.image,
     }));
-
 
     return res.status(200).json({
       data: myPostsData,
@@ -179,4 +177,26 @@ router.get("/profile", async (req, res) => {
 
 module.exports = router;
 
-//검색기능을 넣는다면?
+//1.검색기능을 넣는다면?
+//2.특정 게시물을 찾아서 보여준다
+//3.특정 게시물은 Post에 있을테니 검색바가 있다면 그정보를 body로 가져와서
+//4.그 정보가 Post안에 존재하는지 봐야겠지
+//5. 어떻게? title이 없으니까 content내용이 비슷한 것들 ex) "김치찌개 맛있었다" "고기 맛있었다"면 맛있었다 "맛있었다 맜있었다! 맜있었다~"를 검색하면 3개가 뜨게 (마지막을 뜨게하는게 어렵다고 한다)
+//기능자체는 크게는 어렵지는 않을거 같은데 5번이 예전에 잠깐 봤을때 뭔가 해야되는 게 많아서 알아봐야할듯
+//아니면 query를 이용해서 query=검색값 해서 검색값가져와서 하는 방법도 있을 듯
+router.post("/search", async (req, res) => {
+  const search = req.body.search; // 검색한 내용을 가져온다 일단 req.body에서 가져온다 치자
+  const data = await Post.findAll({
+    where: { content: search },
+  });
+
+  return res.status(200).json({ data: data }); // 일단 여기까지가 생각한 4번까지
+
+  //찾아보니까 db마다 search index를쓰는 방법이 다르다고 한다...
+});
+
+//query string 써보기
+//?데이터이름=데이터값 형태
+//전제 조건: 프론트에서 button으로 검색정보를 주고, js문법으로
+//버튼클릭하면 window.location.replace('/seqrch?value=값')을 준다고 치면 req.querystring.value ?로 가져오면 끝
+//검색기능 자체는 쉬운듯근데 5번을  구현하는 게 어려운게 아닌가 싶다
