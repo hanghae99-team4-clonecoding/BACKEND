@@ -187,27 +187,3 @@ router.get("/profile", async (req, res) => {
 });
 
 module.exports = router;
-
-//1.검색기능을 넣는다면?
-//2.특정 게시물을 찾아서 보여준다
-//3.특정 게시물은 Post에 있을테니 검색바가 있다면 그정보를 body로 가져와서
-//4.그 정보가 Post안에 존재하는지 봐야겠지
-//5. 어떻게? title이 없으니까 content내용이 비슷한 것들 ex) "김치찌개 맛있었다" "고기 맛있었다"면 맛있었다 "맛있었다 맜있었다! 맜있었다~"를 검색하면 3개가 뜨게 (마지막을 뜨게하는게 어렵다고 한다)
-//기능자체는 크게는 어렵지는 않을거 같은데 5번이 예전에 잠깐 봤을때 뭔가 해야되는 게 많아서 알아봐야할듯
-//아니면 query를 이용해서 query=검색값 해서 검색값가져와서 하는 방법도 있을 듯
-router.post("/search", async (req, res) => {
-  const search = req.body.search; // 검색한 내용을 가져온다 일단 req.body에서 가져온다 치자
-  const data = await Post.findAll({
-    where: { content: search },
-  });
-
-  return res.status(200).json({ data: data }); // 일단 여기까지가 생각한 4번까지
-
-  //찾아보니까 db마다 search index를쓰는 방법이 다르다고 한다...
-});
-
-//query string 써보기
-//?데이터이름=데이터값 형태
-//전제 조건: 프론트에서 button으로 검색정보를 주고, js문법으로
-//버튼클릭하면 window.location.replace('/seqrch?value=값')을 준다고 치면 req.querystring.value ?로 가져오면 끝
-//검색기능 자체는 쉬운듯근데 5번을  구현하는 게 어려운게 아닌가 싶다
