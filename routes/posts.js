@@ -150,4 +150,23 @@ router.get("/profile", async (req, res) => {
   }
 });
 
+//검색기능 구현
+//유사검색 검색어를 완전히 똑같게 입력하지 않아도 일부 내용이 같으면 검색하는 것
+//like 문법을 쓰는 경우 간단구현ver
+
+const { or, and, like } = sequelize.Op;
+
+router.get("/search", async (req, res) => {
+  const keyword = req.query.value; // 검색한 내용을 가져온다 일단 req.query에서 가져온다 치자
+
+  const searchDiary = await Diary.findAll({
+    where: {
+      [and]: [{ private: false }],
+      [or]: [{ content: { [like]: `%${keyword}%` } }], //like연산
+    },
+  });
+
+  return res.status(200).json({ data: searchDiary });
+});
+
 module.exports = router;
