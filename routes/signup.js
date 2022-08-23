@@ -6,6 +6,7 @@ const router = express.Router();
 
 // 회원가입
 router.post("/", async (req, res) => {
+  try{
     const { email, password, passwordCheck } = req.body;
     //const User = new user();
     const regEmail = /^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9-.]{2,6}$/;
@@ -41,6 +42,12 @@ router.post("/", async (req, res) => {
       userData.password = await bcrypt.hash(userData.password, salt);
       await User.create(userData);
       res.status(201).send({message : "회원가입이 완료되었습니다."});
+
+  }catch(err){
+    return res.status(400).json({
+      error: "회원가입에 실패하였습니다.",
+    });
+  }
 });
 
 module.exports = router;

@@ -6,6 +6,7 @@ module.exports = {
     database: process.env.SEQUELIZE_DB_DEV,
     host: process.env.SEQUELIZE_HOST_DEV,
     dialect: "mysql",
+    logging: false
   },
   test: {
     username: process.env.SEQUELIZE_USER_TEST,
@@ -13,6 +14,7 @@ module.exports = {
     database: process.env.SEQUELIZE_DB_TEST,
     host: process.env.SEQUELIZE_HOST_TEST,
     dialect: "mysql",
+    logging: false
   },
   production: {
     username: process.env.SEQUELIZE_USER_PD,
@@ -20,5 +22,6 @@ module.exports = {
     database: process.env.SEQUELIZE_DB_PD,
     host: process.env.SEQUELIZE_HOST_PD,
     dialect: "mysql",
+    logging: false
   },
 };
