@@ -15,7 +15,7 @@ const corsOption = {
 
 //db 생성 부분
 sequelize
-  .sync({ force: false }) //db reset할 일 있으면 true 변경
+  .sync({ force : false }) //db reset할 일 있으면 true 변경
   .then(() => {
     console.log("데이터베이스 연결 성공");
   })
