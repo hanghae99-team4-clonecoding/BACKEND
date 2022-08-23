@@ -15,32 +15,35 @@ const postSchema = Joi.object({
 
 router.get("/", async (req, res) => {
   try {
-
     let offset = 0;
     const limit = 5;
     const pageNum = req.query.page;
 
-    if(pageNum>1){
-      offset = limit * (pageNum -1); //5 10
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
     }
     const posts = await Post.findAll({
       order: [["createdAt", "desc"]],
-      offset : offset, 
-      limit : limit
+      offset: offset,
+      limit: limit,
     });
-    if (!posts.length){
-      return res.status(200).json({message : "게시글이 없습니다."});
+    if (!posts.length) {
+      return res
+        .status(200)
+        .json({ message: "해당 게시글이 존재하지 않습니다" });
     }
-    const postsData = posts.map((post)=>({
-      postId : post.postId,
-      email : post.email,
-      content : post.content,
-      image : post.image
+    const postsData = posts.map((post) => ({
+      postId: post.postId,
+      email: post.email,
+      content: post.content,
+      image: post.image,
     }));
 
-    res.status(200).json({data : postsData});
-  }catch (error) {
-    return res.status(400).json({ error: "정상적으로 게시글을 출력할 수 없습니다." });
+    res.status(200).json({ data: postsData });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ error: "정상적으로 게시글을 출력할 수 없습니다." });
   }
 });
 
@@ -97,59 +100,18 @@ router.delete("/:postId", async (req, res) => {
     // return res.status(200).json({ message: "게시글을 삭제했습니다." });
     //게시글 삭제후 전제조회
 
-    const posts = await Post.findAll({order: [["createdAt", "desc"]]});
-    const postsData = posts.map((post)=>({
-      postId : post.postId,
-      email : post.email,
-      content : post.content,
-      image : post.image
+    const posts = await Post.findAll({ order: [["createdAt", "desc"]] });
+    const postsData = posts.map((post) => ({
+      postId: post.postId,
+      email: post.email,
+      content: post.content,
+      image: post.image,
     }));
     return res.status(200).json({ data: postsData });
   } catch (error) {
     return res.status(401).json({
       error: "게시글 삭제에 실패했습니다.",
     });
-  }
-});
-
-//게시글 수정
-//삭제와 마찬가지로 userid와 postId가 같은지 확인하고
-//다른 점은 req.body에 있는 거 받아와서 수정해 주는 거 정도일듯
-// 근데 req.body가 joi를 거쳐 validate검사를 한다 => why? 게시글 수정하는 데 게시글이 잘못되면 안되니까 인듯
-// 게시글 작성에도 해야 될듯하다 req.body에 validate..
-router.put("/:postId", async (req, res) => {
-  try {
-    const resultSchema = postSchema.validate(req.body);
-    if (resultSchema.error) {
-      return res.status(412).json({
-        errorMessagfe: "데이터 형식이 올바르지 않습니다.",
-      });
-    }
-
-    const { postId } = req.params;
-    const { userId } = req.locals.user;
-    const { title, content } = resultSchema.value;
-
-    const post = await Post.findOne({ where: { postId: postId } });
-
-    if (!post) {
-      return res.status(400).json({ error: "게시글이 존재하지 않습니다." });
-    }
-
-    const count = await Post.update(
-      { title, content },
-      { where: { postId, userId } }
-    );
-
-    if (count < 1) {
-      return res
-        .status(400)
-        .json({ errorMessage: "게시글이 정상적으로 수정되지 않았습니다." });
-    }
-
-    return res.status(200).json({ message: "게시글을 수정했습니다." });
-  } catch (error) {
-    return res.status(400).json({ error: "게시글 수정에 실패했습니다." });
   }
 });
 
@@ -166,15 +128,14 @@ router.get("/profile", async (req, res) => {
       where: {
         [Op.and]: [{ email: user.email }], //게시글 중에 userId인걸 다 찾는다
       },
-      order: [["createdAt", "desc"]]
+      order: [["createdAt", "desc"]],
     });
-    const myPostsData = myPosts.map((post)=>({
-      postId : post.postId,
-      email : post.email,
-      content : post.content,
-      image : post.image
+    const myPostsData = myPosts.map((post) => ({
+      postId: post.postId,
+      email: post.email,
+      content: post.content,
+      image: post.image,
     }));
-
 
     return res.status(200).json({
       data: myPostsData,
@@ -187,6 +148,25 @@ router.get("/profile", async (req, res) => {
       error: "프로필 조회에 실패하였습니다.",
     });
   }
+});
+
+//검색기능 구현
+//유사검색 검색어를 완전히 똑같게 입력하지 않아도 일부 내용이 같으면 검색하는 것
+//like 문법을 쓰는 경우 간단구현ver
+
+const { or, and, like } = sequelize.Op;
+
+router.get("/search", async (req, res) => {
+  const keyword = req.query.value; // 검색한 내용을 가져온다 일단 req.query에서 가져온다 치자
+
+  const searchDiary = await Diary.findAll({
+    where: {
+      [and]: [{ private: false }],
+      [or]: [{ content: { [like]: `%${keyword}%` } }], //like연산
+    },
+  });
+
+  return res.status(200).json({ data: searchDiary });
 });
 
 module.exports = router;
