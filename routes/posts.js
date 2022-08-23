@@ -28,7 +28,9 @@ router.get("/", async (req, res) => {
       limit: limit,
     });
     if (!posts.length) {
-      return res.status(200).json({ message: "게시글이 없습니다." });
+      return res
+        .status(200)
+        .json({ message: "해당 게시글이 존재하지 않습니다" });
     }
     const postsData = posts.map((post) => ({
       postId: post.postId,
@@ -110,44 +112,6 @@ router.delete("/:postId", async (req, res) => {
     return res.status(401).json({
       error: "게시글 삭제에 실패했습니다.",
     });
-  }
-});
-
-//게시글 수정
-//삭제와 마찬가지로 userid와 postId가 같은지 확인하고
-//다른 점은 req.body에 있는 거 받아와서 수정해 주는 거 정도일듯
-// 근데 req.body가 joi를 거쳐 validate검사를 한다 => why? 게시글 수정하는 데 게시글이 잘못되면 안되니까 인듯
-// 게시글 작성에도 해야 될듯하다 req.body에 validate..
-router.put("/:postId", async (req, res) => {
-  try {
-    const resultSchema = postSchema.validate(req.body);
-    if (resultSchema.error) {
-      return res.status(412).json({
-        errorMessagfe: "데이터 형식이 올바르지 않습니다.",
-      });
-    }
-
-    const { postId } = req.params;
-    const { userId } = req.locals.user;
-    const { content } = resultSchema.value;
-
-    const post = await Post.findOne({ where: { postId: postId } });
-
-    if (!post) {
-      return res.status(400).json({ error: "게시글이 존재하지 않습니다." });
-    }
-
-    const count = await Post.update({ content }, { where: { postId, userId } });
-
-    if (count < 1) {
-      return res
-        .status(400)
-        .json({ errorMessage: "게시글이 정상적으로 수정되지 않았습니다." });
-    }
-
-    return res.status(200).json({ message: "게시글을 수정했습니다." });
-  } catch (error) {
-    return res.status(400).json({ error: "게시글 수정에 실패했습니다." });
   }
 });
 
