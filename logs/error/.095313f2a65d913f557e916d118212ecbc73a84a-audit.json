@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "C:\\Users\\Changhyeon_Lee\\Desktop\\hanhe99\\7_spata_clone_coding\\BACKEND\\logs\\error\\.095313f2a65d913f557e916d118212ecbc73a84a-audit.json",
+    "files": [
+        {
+            "date": 1661369081767,
+            "name": "C:\\Users\\Changhyeon_Lee\\Desktop\\hanhe99\\7_spata_clone_coding\\BACKEND\\logs\\error\\2022-08-25.error.log",
+            "hash": "78bb03369744bc66cd2218fa9a6c18a9132c774745ba0a79e9808d3b12dd00a8"
+        }
+    ],
+    "hashType": "sha256"
+}

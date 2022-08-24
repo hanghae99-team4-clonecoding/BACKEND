@@ -5,7 +5,7 @@ const { Like, Post } = require("../models");
 const Joi = require("joi");
 const { Op } = require("sequelize");
 
-router.post("/:postId", async (req, res) => {
+router.post("/:postId", async (req, res, next) => {
   try {
     const { postId } = req.params;
     const user = res.locals.user;
@@ -28,10 +28,8 @@ router.post("/:postId", async (req, res) => {
       existsPost.save();
       return res.status(200).json({ message: "좋아요 지우기!" });
     }
-
   } catch (error) {
-    console.log("좋아요 error 표시 : ", error);
-    return res.status(400).json({ error: "좋아요 클릭/삭제에 실패했습니다." });
+    next(error);
   }
 });
 

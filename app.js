@@ -4,9 +4,9 @@ const { sequelize } = require("./models");
 const cors = require("cors");
 const router = require("./routes");
 const morgan = require("morgan");
-const accessLogStream = require("./utils/log");
-const session = require('express-session');
+const session = require("express-session");
 const passport = require("passport");
+const { errorHandlerMiddleware } = require("./middlewares/errorHandler");
 // const passportConfig = require("./passport");
 
 require("dotenv").config(); // npm i dotenv
@@ -44,17 +44,21 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(requestMiddleWare);
 // passportConfig()
-app.use(session({
-  resave:false,
-  saveUninitialized: false,
-  secret: "clonecoding",
-  cookie: {
-    httpOnly: true,
-    secure: false}
-}))
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: false,
+    secret: "clonecoding",
+    cookie: {
+      httpOnly: true,
+      secure: false,
+    },
+  })
+);
 app.use("/api", router);
-app.use(passport.initialize());// passport를 초기화 하기 위해서 passport.initialize 미들웨어 사용
+app.use(passport.initialize()); // passport를 초기화 하기 위해서 passport.initialize 미들웨어 사용
 app.use(passport.session());
+app.use(errorHandlerMiddleware);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
