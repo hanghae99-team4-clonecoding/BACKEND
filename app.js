@@ -5,6 +5,9 @@ const cors = require("cors");
 const router = require("./routes");
 const morgan = require("morgan");
 const accessLogStream = require("./utils/log");
+const session = require('express-session');
+const passport = require("passport");
+// const passportConfig = require("./passport");
 
 require("dotenv").config(); // npm i dotenv
 const port = process.env.PORT; //process.env는 내장 함수로 .env파일의 PORT란 변수를 불러와줌.
@@ -40,7 +43,18 @@ if (process.env.NODE_ENV === "product") {
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(requestMiddleWare);
+// passportConfig()
+app.use(session({
+  resave:false,
+  saveUninitialized: false,
+  secret: "clonecoding",
+  cookie: {
+    httpOnly: true,
+    secure: false}
+}))
 app.use("/api", router);
+app.use(passport.initialize());// passport를 초기화 하기 위해서 passport.initialize 미들웨어 사용
+app.use(passport.session());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
