@@ -11,9 +11,9 @@ const passportConfig = require("../passport");
 const testPostRouter = require("./testPosts");
 const testLikeRouter = require("./testLike");
 
-//const {logging} = require("../middlewares/logging");
+const {logging} = require("../middlewares/logging");
 
-router.use("/", loginRouter);
+router.use("/", logging, loginRouter);
 router.use("/signup", signupRouter);
 router.use("/post", auth, postRouter);
 router.use("/like", auth, likeRouter);
