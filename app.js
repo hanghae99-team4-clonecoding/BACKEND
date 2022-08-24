@@ -23,7 +23,7 @@ sequelize
   })
   .catch((err) => {
     console.log(err);
-  });
+});
 
 const requestMiddleWare = (req, res, next) => {
   console.log("request URL: ", req.originalUrl, " - ", new Date());
