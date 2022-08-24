@@ -3,10 +3,11 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+const passport = require("passport");
 require("dotenv").config();
 const SECRET_KEY = process.env.SECRET_KEY;
 
-router.post("/", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -29,5 +30,32 @@ router.post("/", async (req, res) => {
     });
   }
 });
+
+//카카오 로그인
+const kakaoCallback = (req, res, next) => {
+  try{
+  passport.authenticate("kakao",
+  {failureRedirect: '/'},
+  (err, user, info) =>{
+    if (err) return next(err);
+
+    const {userId, email} = user;
+    const token = jwt.sign({ userId: user.userId }, SECRET_KEY)
+
+    result = {
+      userId, token, email
+    }
+    res.send({ user: result})
+  }
+  )(req, res, next)
+} catch (error) {
+  res.status(400).send({error: "카카오 로그인 실패"});
+}};
+
+//로그인페이지로 이동
+router.get("/auth/kakao", passport.authenticate("kakao"));
+//카카오에서 설정한 redicrect url을 통해 요청 재전달
+router.get('/auth/kakao/callback', kakaoCallback)
+
 
 module.exports = router;
