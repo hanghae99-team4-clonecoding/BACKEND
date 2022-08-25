@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
 const postSchema = Joi.object({
   email: Joi.string().required(),
   content: Joi.string().required(),
-  image: Joi.string().required(),
+  //image: Joi.string()
 });
 
 //게시글 작성 삭제 수정 조회(프로필), 나중에 미들웨어 추가해야함 +게시글 수정 작성 할때 숙련주차처럼 body검사 자세히 해야되는지
@@ -51,20 +51,22 @@ router.get("/", async (req, res, next) => {
 //하는 이유 일단 게시글을 작성하는 거니  무조건 존재해야 된다. 실제로 존재하냐 정도의 테스트를 한다고 보면 될듯?
 router.post("/", async (req, res, next) => {
   try {
-    const resultSchema = postSchema.validate(req.body);
+    const {email, content, image} = req.body;
+    const resultSchema = postSchema.validate({email, content});
 
     if (resultSchema.error) {
+      console.log(resultSchema.error);
       throw boom.badRequest("데이터 형식이 올바르지 않습니다.");
     }
 
-    const { content, image, email } = resultSchema.value;
+    //const { content, image, email } = resultSchema.value;
     console.log(content, image, email);
 
     await Post.create({ content, email, image });
 
     return res
       .status(201)
-      .json({ success: true, message: "포스팅에 성공했습니다." });
+      .json({ message: "포스팅에 성공했습니다." });
   } catch (error) {
     next(error);
   }
