@@ -1,8 +1,8 @@
-const fs = require('fs');
+// const fs = require('fs');
 
-const accessLogStream = fs.createWriteStream(
-    `${__dirname}/../log/access.log`,
-    { flags: 'a' }
-);
+// const accessLogStream = fs.createWriteStream(
+//     `${__dirname}/../log/access.log`,
+//     { flags: 'a' }
+// );
 
-module.exports = accessLogStream
+// module.exports = accessLogStream
