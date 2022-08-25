@@ -14,7 +14,7 @@ module.exports = class User extends Sequelize.Model {
         snsId: Sequelize.STRING,
         provider: {
           type: Sequelize.STRING,
-          defaultValue: "kakao",
+          // defaultValue: "kakao",
         },
         email: {
           type: Sequelize.STRING,
