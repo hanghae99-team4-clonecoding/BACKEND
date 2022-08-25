@@ -89,16 +89,8 @@ router.delete("/:postId", async (req, res, next) => {
       throw boom.notFound("게시글이 정상적으로 삭제되지 않았습니다.");
     }
 
-    // return res.status(200).json({ message: "게시글을 삭제했습니다." });
+    return res.status(200).json({ message: "게시글을 삭제했습니다." });
     //게시글 삭제후 전체조회
-    const posts = await Post.findAll({ order: [["createdAt", "desc"]] });
-    const postsData = posts.map((post) => ({
-      postId: post.postId,
-      email: post.email,
-      content: post.content,
-      image: post.image,
-    }));
-    return res.status(200).json({ data: postsData });
   } catch (error) {
     next(error);
   }
