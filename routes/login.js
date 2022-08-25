@@ -70,4 +70,30 @@ router.get("/auth/kakao", passport.authenticate("kakao"));
 //카카오에서 설정한 redicrect url을 통해 요청 재전달
 router.get("/auth/kakao/callback", kakaoCallback);
 
+//구글로그인
+const googleCallback = (req, res, next) => {
+  try {
+    passport.authenticate("google",
+    {failureRedirect: "/"},
+    (err, user, info) =>{
+      if(err) return next(err);
+
+      const { userId, nickName, email } = user;
+      const token = jwt.sign({userId}, process.env.SECRET_KEY)
+
+      result = {
+        userId, token, nickName, email
+      }
+      res.send({user: result})
+    }
+    )(req, res, next)
+  } catch(error) {
+    res.status(400).send({error: "구글 로그인 실패"});
+  }
+}
+//로그인페이지로 이동
+router.get("/auth/google", passport.authenticate("google", {scope:["profile", "email"]}));//프로필과 이메일 정보를 받음.
+//구글 서버 로그인이 되면, redicrect url을 통해 요청 재전달
+router.get("/auth/google/callback", googleCallback)
+
 module.exports = router;

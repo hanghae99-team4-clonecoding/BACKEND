@@ -7,7 +7,7 @@ const morgan = require("morgan");
 const session = require("express-session");
 const passport = require("passport");
 const { errorHandlerMiddleware } = require("./middlewares/errorHandler");
-// const passportConfig = require("./passport");
+const passportConfig = require("./passport");
 
 require("dotenv").config(); // npm i dotenv
 const port = process.env.PORT || 3000; //process.env는 내장 함수로 .env파일의 PORT란 변수를 불러와줌.
@@ -43,12 +43,12 @@ if (process.env.NODE_ENV === "product") {
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(requestMiddleWare);
-// passportConfig()
+passportConfig()
 app.use(
   session({
     resave: false,
     saveUninitialized: false,
-    secret: "clonecoding",
+    secret: [process.env.SECRET, process.env.GOOGLE_SECRET],
     cookie: {
       httpOnly: true,
       secure: false,
