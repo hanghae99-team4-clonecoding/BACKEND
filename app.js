@@ -10,7 +10,7 @@ const { errorHandlerMiddleware } = require("./middlewares/errorHandler");
 // const passportConfig = require("./passport");
 
 require("dotenv").config(); // npm i dotenv
-const port = process.env.PORT; //process.env는 내장 함수로 .env파일의 PORT란 변수를 불러와줌.
+const port = process.env.PORT || 3000; //process.env는 내장 함수로 .env파일의 PORT란 변수를 불러와줌.
 
 //cors 설정
 const corsOption = {
