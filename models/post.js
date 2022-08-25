@@ -18,7 +18,7 @@ module.exports = class Post extends Sequelize.Model {
         },
         image: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
           unique: false,
         },
         likeCount: {
