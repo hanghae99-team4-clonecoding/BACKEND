@@ -38,6 +38,7 @@ router.get("/", async (req, res, next) => {
       email: post.email,
       content: post.content,
       image: post.image,
+      likeCount: post.likeCount,
     }));
 
     res.status(200).json({ data: postsData });
@@ -117,6 +118,7 @@ router.get("/profile", async (req, res, next) => {
       email: post.email,
       content: post.content,
       image: post.image,
+      likeCount: post.likeCount
     }));
 
     return res.status(200).json({
